@@ -1,0 +1,51 @@
+.data-info {
+    padding: 5px;
+    width: 150px;
+    background-color: #fff;
+    color: #333;
+    font-size: 13px;
+    border-radius: 5px;/*表格框的圆角（5px）*/
+    box-shadow: 0 5px 5px rgb(0 0 0 / 12%);
+}
+
+.data-info-title {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.data-detail-info {
+    position: absolute;
+    top: 60px;
+    left: 30px;
+    padding: 5px;
+    background-color: #fff; 
+    /* 限制最大高度，免得数据太多影响整个页面 */
+    max-height: 200px;
+    overflow: auto;
+    color: #333;
+    font-size: 13px;
+    border-radius: 5px;
+    box-shadow: 0 5px 5px rgb(0 0 0 / 12%);
+}
+
+/* 设置表格头部以及表格行的上边框样式 */
+#data-detail-info-table thead,
+#table tr {
+    /*border-top-width: 1px; /*上边框的宽度为1像素*/
+    /*border-top-style: solid; /*上边框的样式为实线*/
+    /*border-top-color: rgb(235, 242, 224); /*上边框的颜色为RGB(235, 242, 224)*/
+}
+
+/* 设置表格的单元格(td)和表头(th)的样式 */
+#data-detail-info-table td,
+#table th {
+    padding: 5px 15px; /*单元格和表头的内边距为5像素（上下）和10像素（左右）*/
+    font-size: 18px; /*文本字体大小为12像素*/
+    font-family: '楷体'; /*文本字体为Verdana*/
+    /* color: rgb(149, 170, 109); 这行代码被注释掉了，不会生效。如果取消注释，将设置文本颜色为RGB(149, 170, 109)*/
+}
+
+/* 设置表格偶数行的背景色 */
+#data-detail-info-table tr:nth-child(even) {
+    background: #d8bfd8; /*偶数行的背景色*/
+}

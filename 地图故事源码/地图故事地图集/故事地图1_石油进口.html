@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN" style="height: 100%">
+<head>
+  <meta charset="utf-8">
+</head>
+<body style="height: 100%; margin: 0">
+  <div id="container" style="height: 100%"></div>
+
+  <script type="text/javascript" src="https://fastly.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script type="text/javascript" src="https://fastly.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <!-- Uncomment this line if you want to dataTool extension
+  <script type="text/javascript" src="https://fastly.jsdelivr.net/npm/echarts@5.4.3/dist/extension/dataTool.min.js"></script>
+  -->
+  <!-- Uncomment this line if you want to use gl extension
+  <script type="text/javascript" src="https://fastly.jsdelivr.net/npm/echarts-gl@2/dist/echarts-gl.min.js"></script>
+  -->
+  <!-- Uncomment this line if you want to echarts-stat extension
+  <script type="text/javascript" src="https://fastly.jsdelivr.net/npm/echarts-stat@latest/dist/ecStat.min.js"></script>
+  -->
+  <!-- Uncomment this line if you want to use map
+  <script type="text/javascript" src="https://fastly.jsdelivr.net/npm/echarts@4.9.0/map/js/china.js"></script>
+  <script type="text/javascript" src="https://fastly.jsdelivr.net/npm/echarts@4.9.0/map/js/world.js"></script>
+  -->
+  <!-- Uncomment these two lines if you want to use bmap extension
+  <script type="text/javascript" src="https://api.map.baidu.com/api?v=3.0&ak=YOUR_API_KEY"></script>
+  <script type="text/javascript" src="https://fastly.jsdelivr.net/npm/echarts@5.4.3/dist/extension/bmap.min.js"></script>
+  -->
+
+  <script type="text/javascript">
+    var dom = document.getElementById('container');
+    var myChart = echarts.init(dom, null, {
+      renderer: 'canvas',
+      useDirtyRect: false
+    });
+    var app = {};
+    //var ROOT_PATH = 'https://echarts.apache.org/examples';
+    var option;
+
+    myChart.showLoading();
+fetch('./data/world.zh.json') // 指定本地JSON文件路径
+  .then(response => response.json())
+  .then(usaJson => { // 修改参数名为usaJson
+    myChart.hideLoading();
+    echarts.registerMap('USA', usaJson, {
+      Alaska: {
+        left: -131,
+        top: 25,
+        width: 15
+      },
+      Hawaii: {
+        left: -110,
+        top: 28,
+        width: 5
+      },
+      'Puerto Rico': {
+        left: -76,
+        top: 26,
+        width: 2
+      }
+    });
+
+  option = {
+    title: {
+      text: '1995年全国部分国家石油进口(美元)交易数据（千桶/日）',
+      subtext: '世界地图审图号：GS（2016）1666号',
+      sublink: 'http://www.census.gov/popest/data/datasets.html',
+      left: 'right',
+	  textStyle: {
+		color: 'white' // 设置标题文本颜色为白色
+		},
+	   subtextStyle: {
+	              color: 'white' // 设置subtext文本颜色为白色
+	          }
+    },
+    tooltip: {
+      trigger: 'item',
+      showDelay: 0,
+      transitionDuration: 0.2,
+    },
+    visualMap: {
+      left: 'right',
+      min: 0,
+      max: 3000,
+      inRange: {
+        color: [
+          '#313695',
+          '#4575b4',
+          '#74add1',
+          '#abd9e9',
+          '#e0f3f8',
+          '#ffffbf',
+          '#fee090',
+          '#fdae61',
+          '#f46d43',
+          '#d73027',
+          '#a50026'
+        ]
+      },
+      text: ['High', 'Low'],
+      calculable: true,
+	  textStyle: {
+	  		color: 'white' // 设置标题文本颜色为白色
+	  		}
+    },
+    toolbox: {
+      show: true,
+      //orient: 'vertical',
+      left: 'left',
+      top: 'top',
+      feature: {
+        dataView: { readOnly: false },
+        restore: {},
+        saveAsImage: {}
+      }
+    },
+    series: [
+      {
+        name: 'Oil Import Data',
+        type: 'map',
+        roam: true,
+        map: 'USA',
+        emphasis: {
+          label: {
+            show: true
+          }
+        },
+        data: [
+          { name: '美国', value: 7230.023},
+          { name: '加拿大', value: 589.64 },
+          { name: '西班牙', value: 1109.094 },
+          { name: '法国', value: 1557.089 },
+          { name: '英国', value: 826.248 },
+		  { name: '比利时', value: 531.347 },
+		  { name: '荷兰', value: 1098.978 },
+		  { name: '瑞典', value: 370.156 },
+		  { name: '德国', value: 2040.663 },
+		  { name: '意大利', value: 1491.903 },
+		  { name: '克罗地亚', value: 84.411 },
+		  { name: '乌克兰', value: 266.729 },
+		  { name: '希腊', value: 309.52 },
+		  { name: '中国', value: 342.736 },
+		  { name: '日本', value: 4552.797 },
+		  { name: '印度', value: 557.327 },
+		  { name: '巴西', value: 503.343 },
+          { name: '澳大利亚', value: 279.517 }
+        ]
+      }
+    ]
+  };
+  myChart.setOption(option);
+});
+
+    if (option && typeof option === 'object') {
+      myChart.setOption(option);
+    }
+
+    window.addEventListener('resize', myChart.resize);
+  </script>
+</body>
+</html>

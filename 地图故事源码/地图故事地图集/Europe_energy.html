@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>欧洲新能源</title>
+    <link rel="stylesheet" href="CSS/leaflet.css">
+    <link rel="stylesheet" href="CSS/leaflet.legend.css">
+    <link rel="stylesheet" href="CSS/Control.MiniMap.css">
+    <link rel="stylesheet" href="CSS/5-1.css">
+    <script src="JS/leaflet.js"></script>
+    <script src="JS/leaflet-src.js"></script>
+    <script src="JS/leaflet.ChineseTmsProviders.js"></script>
+    <script src="JS/leaflet.ajax.js"></script>
+    <script src="JS/d3.js"></script>
+    <script src="JS/L.D3SvgOverlay.js"></script>
+    <script src="JS/leaflet.legend.js"></script>
+    <script src="JS/Control.MiniMap.js"></script>
+    <script src="JS/choropleth.js"></script>
+    <script src="data/energy.js"></script>
+	<style>
+	    #buttonContainer {
+	        position: absolute;
+	        top: 480px; /* 向下移动整体按钮容器，确保在缩放控件下面 */
+	        left: 10px;
+	        display: flex;
+	        flex-direction: column;
+	        z-index: 1001; /* 将z-index设置为一个足够高的值，确保在地图上方 */
+	    }
+	
+	    #showStatsButton, #clearStatsButton {
+	        width: 30px;
+	        height: 30px;
+	        background-color: #fff;
+	        border: 1px solid #ccc;
+	        border-radius: 3px;
+	        text-align: center;
+	        cursor: pointer;
+	        margin-bottom: 10px; /* 间距用于分隔两个按钮 */
+			z-index: 1001; 
+	    }
+		.iconButton {
+		        width: 30px;
+		        height: 30px;
+		        background-color: #fff;
+		        border: 1px solid #ccc;
+		        border-radius: 3px;
+		        cursor: pointer;
+		        margin-bottom: 10px;
+		        line-height: 30px;
+		    }
+		
+		    .iconImage {
+		        width: 20px; /* 调整图像大小 */
+		        height: 20px;
+				
+		    }
+			#custom-legend {
+			  /* 自定义样式 */
+			  bottom: 50px; /* 调整底部边距以上移图例 */
+			  border: none; /* 移除边框颜色 */
+			  /* 其他样式属性 */
+			}
+	</style>
+</head>
+<body>
+<div id="mapid" style="width: 920px; height: 580px;">
+	<!-- 添加统计图显示按钮和清除按钮容器 -->
+	    <div id="buttonContainer">
+	       <button class="iconButton" id="showStatsButton"><img class="iconImage" src="./CSS/images/柱状图.png" alt="统计图"></button>
+	       <button class="iconButton" id="clearStatsButton"><img class="iconImage" src="./CSS/images/清除.png" alt="清除"></button>
+	    </div>
+		<div id="custom-legend" class="leaflet-control-legend">
+		  
+		</div>
+
+</div>
+
+<script>
+   var myMap = L.map("mapid", {
+        zoomSnap:0.25,
+        center: [51, 15],
+        zoom: 1.5,
+        zoomControl: false,
+    });
+
+    // ...（前面的地图图层和控件代码）
+	//以下代码可添加天地图作为底图
+	L.tileLayer.chinaProvider('GaoDe.Normal.Map',{       //高德地图常规地图图层
+	    attribution: '地图数据 &copy; <a href="https://lbs.amap.com/">高德地图</a> ',
+	    maxZoom:18,     //最大缩放等级
+	    minZoom:3.8       //最小缩放等级
+	}).addTo(myMap);
+	var norMap = L.tileLayer.chinaProvider('TianDiTu.Normal.Map', {
+	    key: "42519f2239b53730e48b8b7b214e7d6e",
+	    maxZoom: 18,
+	    minZoom: 3.8,
+	}).addTo(myMap);
+	var satMap = L.tileLayer.chinaProvider('TianDiTu.Satellite.Map', {
+	        key: "42519f2239b53730e48b8b7b214e7d6e",
+	        maxZoom: 18,
+	        minZoom: 3.8
+	    });
+	    var satAnn = L.tileLayer.chinaProvider('TianDiTu.Satellite.Annotion', {
+	        key: "42519f2239b53730e48b8b7b214e7d6e",
+	        maxZoom: 18,
+	        minZoom: 3.8
+	    });
+	var imageLayers = L.layerGroup([satMap, satAnn]);   //影像图层及注记
+	var norLayers = L.layerGroup([norMap]);     //常规图层及注记   
+	
+	L.control.zoom({
+	    zoomInTitle: '放大',
+	    zoomOutTitle: '缩小'
+	}).addTo(myMap);
+	
+	
+	//鹰眼
+	var rect1 = {color: "#b30000", weight: 3};
+	var rect2 = {color: "#045a8d", weight: 1, opacity:0, fillOpacity:0};
+	var miniMap = new L.Control.MiniMap(imageLayers,{
+	    toggleDisplay: true,    //显示缩略图展开按钮
+	    aimingRectOptions : rect1,  //目标矩形框样式
+	    shadowRectOptions: rect2,   //拖动矩形框样式
+	}).addTo(myMap);
+	
+	
+	//比例尺
+	L.control.scale({
+	    maxWidth : 200,     //最大宽度
+	    metric : true,      //是否显示米制长度单位
+	    imperial : false,   //是否显示英制长度单位
+	    updateWhenIdle : true,  //是否在移动地图结束后更新
+	}).addTo(myMap);
+	
+	//增加标题及各城市人口信息显示控件
+	var info = L.control();
+	info.onAdd = function (myMap) {
+	    this._div = L.DomUtil.create('div', 'info'); //创建一个类名为"info"的div元素
+	    this.update();
+	    return this._div;
+	};
+	   
+	// 更新内容
+	info.update = function (props) {
+	    this._div.innerHTML = '<h4>1996年新能源消耗占比</h4>' +  (props ?
+	        '<b>' + props.name + '</b><br />' + cityData[props.name] + '%'
+	        : '鼠标移动到各个国家即可查看');
+	};
+	info.addTo(myMap);
+	
+	//设置研究区图分级颜色,使用？：三元条件语句
+	function getColor(d){  
+		return d>50 ? '#8c6bb1':
+			   d>30 ? '#c994c7':
+			   d>10 ? '#fa9fb5':
+			   d>5 ? '#fbb4b9':
+			   '#feebe2';
+			   
+			   
+	}
+	
+	//设置整张地图分级统计图样式
+	function style(feature){
+		return {
+		    fillColor: getColor(cityData[feature.properties.name]),
+		    weight: 2,  //线段粗细
+		    opacity: 1,  //不透明度
+		    color: '#969696',  //边界线颜色
+		    dashArray: '3',  //虚线样式
+		    fillOpacity: 1  //填充透明度
+		};
+	}
+	
+	var geojsonLayer = new L.GeoJSON.AJAX("data/Europe.json",{
+		style:style,
+	   /* middleware: function(geojson){
+	        for (var i=0;i<geojson.features.length;i++){
+	            var feature=geojson.features[i];
+	            feature.properties.people=cityData[feature.properties.name];
+	        };   //将人口信息加入到JSON数据中
+	        var choroplethLayer = L.choropleth(geojson, {   //绘制分级统计图
+	           */
+	            onEachFeature: function (feature, layer) {
+	                
+	                var latlng=layer.getBounds().getCenter();  //获取几何中心，作为注记锚点
+	                //var latlng=feature.properties.center; 
+					L.marker(latlng, {
+	                    icon: L.divIcon({
+	                        className: 'polygonLabel',    //设置类名，用于样式控制
+	                        html: feature.properties.name,  //注记内容
+	                        iconSize: [100, 20],   //注记放置空间
+	                    }),
+	                    interactive:false,      //忽视鼠标事件
+	                }).addTo(myMap);
+	                
+					layer.on({      //监听鼠标事件
+	                    mouseover: highlightFeature,//鼠标悬停
+	                    mouseout: resetHighlight,   //鼠标移出
+	                    click: zoomToFeature,       //鼠标单击
+	                });
+	            },
+	        }).addTo(myMap);
+	
+	//增加图例控件
+	var legend = L.control({position: 'bottomright'});  //图例位置
+	legend.onAdd = function (myMap) {
+	   var div = L.DomUtil.create('div', 'info legend'),
+	       divTitle=L.DomUtil.create('div', 'title'),  //图例二字作为标题
+	       divInfo=L.DomUtil.create('div', 'legend'),
+	       grades = [0, 5, 10, 30, 50]; //和getColor( )函数分级设色一一对应
+	   divTitle.innerHTML='<b>新能源占比（%）</b>';
+	   div.appendChild(divTitle);
+	   //循环人口分级数组，在每个颜色块后面添加一个标注表示对应的人口数量范围
+	   for (var i = 0; i < grades.length; i++) {
+	       divInfo.innerHTML +=
+	           '<i style="background:' + getColor(grades[i] + 1) + '"></i> ' +
+	           (grades[i]+1)+ (grades[i + 1] ? '&ndash;' + grades[i + 1]+ '<br>' : '+');
+	   }
+	   div.appendChild(divInfo);
+	   return div;
+	};
+	legend.addTo(myMap);
+	
+    // ...（继续原来的代码，包括鼠标交互和其他功能）
+	//鼠标交互
+	function highlightFeature(e) {  //鼠标悬停事件处理函数
+	    var layer = e.target;   //获取鼠标悬停目标
+	    layer.setStyle({
+	        weight: 2,
+	        color: '#2171b5',
+	        dashArray: '',
+	        fillOpacity: 0.7
+	    });
+	    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+	        layer.bringToFront();   //IE、Opera、Microsoft Edge浏览器不适用
+	    };
+	    info.update(layer.feature.properties);
+	};
+	
+	//恢复原始状态
+	function resetHighlight(e) {
+	    geojsonLayer.resetStyle(e.target);
+	    info.update();
+	}
+	/*
+	function zoomToFeature(e) {
+	    myMap.fitBounds(e.target.getBounds());
+	}
+	*/
+   
+  var arr = []; // 用于存储绑定的数据
+  var csvData; // 用于存储CSV数据
+  var currentFeature = null; // 用于跟踪当前被点击的要素
+  
+  
+  geojsonLayer.on('data:loaded', function(data) {
+      geojsonLayer.eachLayer(function(layer) {
+          arr.push({
+              name: layer.feature.properties.name,
+              latlng: layer.getBounds().getCenter()
+          });
+      });
+  
+      // 存储CSV数据在外部变量中
+      d3.csv("data/Europe_energy.csv", function(d) {
+		  csvData = data; // 将CSV数据存储在外部变量中
+          for (var i = 0; i < arr.length; i++) {
+              if (arr[i].name == d["国家"]) {
+                  arr[i].male = +d["新能源"];
+                  arr[i].female = +d["传统能源"];
+                  return arr[i];
+              }
+          }
+      }).then(function(data) {
+          csvData = data; // 将CSV数据存储在外部变量中
+		  //drawBarChart(data);
+      });
+  });
+  
+  function drawBarChart(data) {
+	  // 移除之前的 barOverlay
+	      if (currentFeature) {
+	          myMap.removeLayer(currentFeature);
+	      }
+      var barOverlay = L.d3SvgOverlay(function(sel, proj) {
+          // 新能源柱状图
+          var selRec = sel.selectAll("rect");
+          var maleBar = selRec.data(data, function(d) {
+              return d.male;
+          });
+		// 添加上方文本标签
+		maleBar.enter()
+		    .append("text")
+		    .attr('x', function(d) {
+		        return proj.latLngToLayerPoint(d.latlng).x - 9; // 调整文本水平位置
+		    })
+		    .attr('y', function(d) {
+		        return proj.latLngToLayerPoint(d.latlng).y + 38; // 调整文本垂直位置
+		    })
+		    .attr("text-anchor", "middle") // 文本水平居中对齐
+		    .attr("fill", "black") // 文本颜色
+			.style("font-size", "2.5px") // 设置字体大小
+			
+		    .text(function(d) {
+		        return d.male + "%"; // 显示新能源占比
+		    });
+		
+		// 添加下方文本标签
+		maleBar.enter()
+		    .append("text")
+		    .attr('x', function(d) {
+		        return proj.latLngToLayerPoint(d.latlng).x - 12; // 调整文本水平位置
+		    })
+		    .attr('y', function(d) {
+		        return proj.latLngToLayerPoint(d.latlng).y + 35; // 调整文本垂直位置
+		    })
+		    .attr("text-anchor", "middle") // 文本水平居中对齐
+		    .attr("fill", "black") // 文本颜色
+			.style("font-size", "2.5px") // 设置字体大小
+		    .text(function(d) {
+		        return "新能源占比"; // 显示新能源占比
+		    });
+          maleBar.enter()
+              .append("rect") // 绘制矩形条柱
+              .attr('x', function(d) {
+                  return proj.latLngToLayerPoint(d.latlng).x - 16;
+              })
+              .attr('y', function(d) {
+                  return proj.latLngToLayerPoint(d.latlng).y + 32 - d.male ;
+              })
+              .attr("width", 12) // 设置矩形宽度
+              .attr("height", function(d) {
+                  return d.male ;
+              })
+              .attr("fill", "#b2df8a") // 设置矩形填充色
+              .append("title") // 鼠标提示
+              .text(function(d) {
+                  return "新能源占比：" + d.male + "%";
+              });
+			
+  
+          // 传统能源柱状图
+          var femaleBar = selRec.data(data, function(d) {
+              return d.female;
+          });
+  
+          femaleBar.enter()
+              .append("rect") // 绘制矩形条柱
+              .attr('x', function(d) {
+                  return proj.latLngToLayerPoint(d.latlng).x - 4 ; // 根据 2021 柱状图的横坐标进行调整，使其位于男性柱状图旁边
+              })
+              .attr('y', function(d) {
+                  return proj.latLngToLayerPoint(d.latlng).y + 32 - d.female/1.5 ;
+              })
+              .attr("width", 12)
+              .attr("height", function(d) {
+                  return d.female/1.5 ; // 由传统能源数来定矩形高度
+              })
+              .attr("fill", "#fee08b")
+              .append("title")
+              .text(function(d) {
+                  return "传统能源占比：" + d.female + "%";
+              });
+			// 添加上方文本标签
+			femaleBar.enter()
+			    .append("text")
+				
+			    .attr('x', function(d) {
+			        return proj.latLngToLayerPoint(d.latlng).x + 3; // 调整文本水平位置
+			    })
+			    .attr('y', function(d) {
+			        return proj.latLngToLayerPoint(d.latlng).y +38; // 调整文本垂直位置
+			    })
+			    .attr("text-anchor", "middle") // 文本水平居中对齐
+			    .attr("fill", "black") // 文本颜色
+				.style("font-size", "2.5px") // 设置字体大小
+			    .text(function(d) {
+			        return  d.female + "%"; // 显示传统能源占比
+			    });
+				// 添加下方文本标签
+				femaleBar.enter()
+				    .append("text")
+				    .attr('x', function(d) {
+				        return proj.latLngToLayerPoint(d.latlng).x + 3; // 调整文本水平位置
+				    })
+				    .attr('y', function(d) {
+				        return proj.latLngToLayerPoint(d.latlng).y + 35; // 调整文本垂直位置
+				    })
+				    .attr("text-anchor", "middle") // 文本水平居中对齐
+				    .attr("fill", "black") // 文本颜色
+					.style("font-size", "2.5px") // 设置字体大小
+				    .text(function(d) {
+				        return "传统能源占比:"; // 显示传统能源占比
+				    });
+      });
+  
+      barOverlay.addTo(myMap);
+  
+      // 保存当前被点击的要素以便清除
+      currentFeature = barOverlay;
+  }
+  
+  function zoomToFeature(e) {
+      myMap.fitBounds(e.target.getBounds());
+  
+      // 清除之前的统计图
+      if (currentFeature) {
+          myMap.removeLayer(currentFeature);
+      }
+  
+      // 获取点击要素的名称
+      var clickedFeatureName = e.target.feature.properties.name;
+  
+      // 过滤数据，只选择当前点击的要素的数据
+      var filteredData = arr.filter(function(d) {
+          return d.name === clickedFeatureName;
+      });
+	console.log(filteredData);
+      // 调用绘制统计图的函数
+      drawBarChart(filteredData);
+  }
+
+	// 获取统计图按钮元素
+	const showStatsButton = document.getElementById("showStatsButton");
+	
+	// 添加点击事件监听器
+	showStatsButton.addEventListener("click", function() {
+		// 清除之前的统计图
+		  if (currentFeature) {
+		    myMap.removeLayer(currentFeature);
+		  }
+		
+		  // 使用D3.js处理CSV数据并绘制柱状图
+		  d3.csv("data/Europe_energy.csv", function(data) {
+		    // 调用绘制柱状图的函数，传递整个 CSV 数据
+		    drawBarChart(csvData);
+		  });
+	});
+	// 获取清除统计图按钮元素
+	const clearStatsButton = document.getElementById("clearStatsButton");
+	
+	// 添加点击事件监听器
+	clearStatsButton.addEventListener("click", function() {
+	  // 清除之前的统计图
+	  if (currentFeature) {
+	    myMap.removeLayer(currentFeature);
+	    currentFeature = null; // 重置 currentFeature 为 null
+	  }
+	});
+
+
+
+		//增加图例
+       // 创建Legend控件
+       var customLegend = L.control.Legend({
+         title: "统计图图例",
+         collapsed: true,
+         symbolWidth: 30,
+         symbolHeight: 30,
+         opacity: 0.7,
+         column: 1,
+         legends: [
+           {
+             label: "传统能源占比（%）",
+             type: "rectangle",
+             fillColor: "#fee08b",
+           },
+           {
+             label: "新能源占比（%）",
+             type: "rectangle",
+             fillColor: "#b2df8a",
+           },
+         ],
+       });
+       
+       // 将Legend控件添加到自定义容器
+       customLegend.addTo(myMap);
+		
+
+</script>
+</body>
+</html>

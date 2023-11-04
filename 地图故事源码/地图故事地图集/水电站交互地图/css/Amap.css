@@ -1,0 +1,253 @@
+html,
+body,
+#container {
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    font-size: 13px;
+}
+
+
+#title{
+	position: absolute;
+	/*距离上下左右container边框的距离*/
+	top: 5px;
+	right: 25px;
+	width: 213px;
+	height: 30px;
+	line-height: 30px;/*文本行高为30个像素*/
+	color: #ffffff;/*字体颜色为白色*/
+	text-align: center;/*让文本文字居中显示*/
+	background: linear-gradient(to bottom, rgba(100, 80, 180, 0.6), rgb(10, 35, 50, 0.9));/*这是一个渐变色的设置：从上到下的线性渐变，渐变颜色从透明度0.6的紫色变为透明度为 0.9 的更深的紫色。*/
+	border-radius: 5px;/*设置文本后面的边框角是圆角*/
+	box-shadow: 0 4px 5px rgba(102, 79, 177, 0.4), 0 0 5px rgba(0, 0, 0, 0.3) inset;/*阴影设置*/
+	font-family: KaiTi;/*定义字体：楷体*/
+	transform: translateZ(0);
+}
+
+ul {
+    margin: 0px;
+    padding: 0px;
+}
+
+ul>li {
+    margin: 5px;
+    list-style-type: none;
+}
+
+.sidebar {
+    position: absolute;
+    bottom: 105px;
+    right: 25px;
+}
+
+/*修改高德原有的控件样式失败——找了很多资料尝试了很多方法还是没有解决，通过浏览器的调试，确定是这三个控件的累的名字是这些*/
+.amap-layer .amap-icon,
+.amap-zoomcontrol .amap-icon {
+  color: #6A5ACD !important;
+}
+
+.tools-button {
+    margin: 5px;
+    width: 34px;
+    height: 34px;
+    border-radius: 5px;
+    box-shadow: 0 1px 5px rgb(0 0 0 / 40%);
+
+}
+
+/*信息图框中的标题*/
+.function-name {
+    margin: 5px;
+    height: 30px;
+    line-height: 30px;
+    font-weight: 700;
+    color: #6A5ACD;
+	font-family: KaiTi;
+	font-size: 18px;
+}
+
+#locationTool_button{
+	background: #fff url("../resource/img/location.png") no-repeat center;
+	background-size: 70% 70%;
+}
+
+#navigationTools_button {
+	background: #fff url("../resource/img/guide.png") no-repeat;
+	background-position: center;
+    background-size: 70% 70%;
+}
+
+#drawTools_button {
+    background: #fff url("../resource/img/paint.png") no-repeat center;
+    background-size: 70% 70%;
+}
+
+#measureTools_button {
+    background: #fff url("../resource/img/measure.png") no-repeat center;
+    background-size: 70% 70%;
+}
+
+/*最大的3个自定义功能信息图框的容器*/
+.input-card {
+    position: absolute;
+    bottom: 30px;
+    right: 80px;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 1px 5px rgb(0 0 0 / 40%);
+	background: linear-gradient(to bottom, #ffffff,rgba(76, 51, 153, 0.6));
+}
+
+/*信息图框中的具体选项的文字*/
+.input-text {
+    display: inline-block;
+    width: 55px;
+    height: 20px;
+	font-family: KaiTi;
+	font-size: 13px;
+}
+
+/*图框中的关闭，开始规划等按钮的css*/
+.btn {
+    margin: 5px;
+    width: 80px;
+    text-align: center;
+    color: #6A5ACD;
+    background-color: #fff;
+    border: 1px solid transparent;
+    border-color: #6A5ACD;
+    border-radius: 5px;
+	font-family: KaiTi;
+}
+
+/*hover是伪类选择器，用于鼠标悬停在button按钮上方，但并为进行点击的时候用的样式*/
+/*所有信息图框中的按钮被鼠标悬停是的样式*/
+.btn:hover {
+    color: #fff;
+    background-color: #6A5ACD;
+}
+
+/*是2个起点终点中的input框中的提示文字*/
+.input-search {
+    width: 240px;
+    height: 30px;
+    line-height: 30px;
+    border: 1px solid #9370DB;
+	font-family: KaiTi;
+}
+
+/*是圆形框中的起点终点文字*/
+.nav-text {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 50%;
+    color: #fff;
+	font-family: KaiTi;
+    text-align: center;
+    background-color: #6A5ACD;
+	
+}
+
+/*按钮：开始导航&关闭，不包含button里面文字的样式*/
+#navigation_button_start,
+#navigation_button_close {
+    display: inline-block;
+    margin-left: 40px;
+    width: 94px;
+    height: 30px;
+    line-height: 30px;
+}
+
+/*导航结果展示图框*/
+#nav-info {
+    position: fixed;
+    background-color: white;
+    max-height: 90%;
+    overflow-y: auto;
+    top: 54px;
+    left: 15px;
+    width: 288px;
+    border-radius: 5px;
+    box-shadow: 0 5px 5px rgba(128,0,128,0.8);
+    z-index: 20;
+}
+
+/*导航结果图框中的：前往高德地图查看*/
+#nav-info .amap-call {
+    background-color: #6A5ACD;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+	font-family: KaiTi;
+	font-size: 15px;
+}
+/*是整个大的信息结果框*/
+#nav-info .amap-lib-driving {
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    overflow: hidden;
+	font-family: KaiTi;
+}
+
+.searchTools {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+}
+
+#search-info {
+    margin-top: 3px;
+    width: 288px;
+    background-color: white;
+    max-height: 90%;
+    overflow-y: auto;
+}
+
+#search_input {
+    width: 280px;
+    height: 30px;
+    line-height: 30px;
+    border: 2px solid #6A5ACD;
+    outline: none;
+}
+
+.searchTools-func {
+    position: absolute;
+    top: 7px;
+    right: 5px;
+    width: 25px;
+    text-align: center;
+    color:#6A5ACD;
+    font-size: large;
+    font-weight: 700;
+}
+
+.searchTools-func:hover {
+    color: #333;
+}
+
+#search-info-close {
+    right: 30px;
+    font-weight: 200;
+}
+
+
+ #heatmapAnimationBtn {
+        position: fixed;
+        left: 10px;
+        bottom: 250px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+		font-family: KaiTi;
+        font-size: 16px;
+        font-weight: bold;
+        color: black;
+        background-image: linear-gradient(180deg, #ffffff 0%, #6A5ACD 100%);
+        cursor: pointer;/*鼠标指针悬停是变成小手*/
+        transition: 0.3s;
+    }
+

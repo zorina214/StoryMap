@@ -1,0 +1,9 @@
+s_city_id,s_city,s_lat,s_lon,s_pop,s_country,s_Volume,e_city_id,e_City,e_lat,e_lon,e_pop,e_country,e_vol
+1, beijing, 39.9055556, 116.4247222, 0, China, 291099, 1, Washington D.C., 38.8951100, -77.0363700, 0, United States of America, 1
+1, beijing, 39.9055556, 116.4247222,0,China,291099,2,Nur-Sultan,51.1605, 71.4704,0,Kazakhstan,1
+1, beijing, 39.9055556, 116.4247222,0,China,291099,3,Doha,25.276987, 51.520008,0,Qatar,1
+1, beijing, 39.9055556, 116.4247222,0,China,291099,4,Amsterdam,52.3676, 4.9041,0,Netherlands,1
+1, beijing, 39.9055556, 116.4247222,0,China,291099,5,London,51.5074, -0.1278,0,United Kingdom,1
+1, beijing, 39.9055556, 116.4247222,0,China,291099,6,Moscow,55.7558, 37.6176,0,Russia,1
+1, beijing, 39.9055556, 116.4247222,0,China,291099,7,Bangkok ,13.7563, 100.5018,0,Thailand,1
+

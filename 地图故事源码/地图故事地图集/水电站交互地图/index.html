@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中国水电站可视化</title>
+	<!--高德的css默认样式引入,会导致之前的排版错误-->
+	<!--<link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css"/>-->
+    <!--自定义样式引入-->
+	<link rel="stylesheet" href="./css/Amap.css" />
+    <link rel="stylesheet" href="./css/dataInfo.css" />
+    <link rel="stylesheet" href="./css/menu.css" />
+    <!-- 设置高德地图 JS API 安全密钥 -->
+    <script type="text/javascript">
+        window._AMapSecurityConfig = {
+            securityJsCode: '0f4fff4b95c25853e60420d14a6aa64d',
+        }
+    </script>
+	
+    <!-- 引入高德地图 JS API 2.0 脚本以及各类插件 -->
+    <script src="https://webapi.amap.com/maps?v=2.0&key=ef2b267c03acc63f56efe24f8df5a35e&plugin=AMap.MouseTool,AMap.Driving,AMap.Transfer,AMap.Walking,AMap.ControlBar,AMap.MoveAnimation"></script>
+    <!-- 引入高德地图 LOCA 数据可视化 API 脚本 -->
+    <script src="https://webapi.amap.com/loca?v=2.0.0&key=ef2b267c03acc63f56efe24f8df5a35e"></script>
+    <!-- 引入高德地图 UI 组件库 1.0 用于添加地图控件 -->
+    <script src="http://webapi.amap.com/ui/1.1/main.js?v=1.1.1"></script>
+    <!-- 引入数据 -->
+    <script src="./resource/data/dataGeoJson.js"></script>
+    <script src="./resource/data/dataDetail.js"></script>
+</head>
+
+<body>
+    <div id="container"></div>
+    <h3 id="title">中国水电站可视化</h3>
+	
+	<!--详细信息的表格数据框-->
+    <div id="data-detail-info" class="data-detail-info"></div>
+	
+	<!--添加鼠标跟踪经纬度的div容器-->
+	<div id="mouse-position" style="position: absolute; bottom: 10px; right: 10px;"></div>
+
+	<!--热力图动画button-->
+	<button id="heatmapAnimationBtn">热力动画</button>
+	
+    <script src="./js/basicControl.js"></script>
+	<script src="./js/AMapUIControl.js"></script>
+    <script src="./js/mouseTools.js"></script>
+    <script src="./js/navigationTools.js"></script>
+    <script src="./js/searchTools.js"></script>
+    <script src="./js/menuTools.js"></script>
+    <script src="./js/dataControl.js"></script>
+    <script src="./js/dataDetailControl.js"></script>
+    
+</body>
+
+</html>
